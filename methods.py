@@ -1,4 +1,5 @@
 import numpy as np
+from sympy import Symbol, diff, lambdify
 
 class Methods:
     def biSection(f,p1,p2,tol):
@@ -11,3 +12,26 @@ class Methods:
             return Methods.biSection(f, m, p2, tol)
         elif np.sign(f(p2)) == np.sign(f(m)):
             return Methods.biSection(f, p1, m, tol)
+    
+    def fixedPoint(f,g,p,tol):
+        if np.abs(f(p)) < tol:
+            return p
+        p = g(p)
+        return Methods.fixedPoint(f, g, p, tol)
+    
+    def newton(f,g,p,tol):
+        if g == None:
+            x = Symbol('x')
+            f_sympy = f(x)
+            g = diff(f_sympy, x)
+            g = lambdify(x, g)
+        if np.abs(f(p)) < tol:
+            return p
+        p = p - f(p)/g(p)
+        return Methods.newton(f, g, p, tol)
+
+f = lambda x: x**3 + 4*x**2 - 10
+g = lambda x: 0.5*(10-x**3)**0.5
+print(Methods.biSection(f,0,2,0.00000000001))
+print(Methods.fixedPoint(f,g,1.5,0.00000000001))
+print(Methods.newton(f,None,1.5,0.00000000001))
